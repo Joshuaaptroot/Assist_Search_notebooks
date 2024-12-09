@@ -1,0 +1,179 @@
+{
+	"name": "JSON Transformations",
+	"properties": {
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "AssistSpark",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "f6873058-c6c7-4bd1-b217-1853882ad1aa"
+			}
+		},
+		"metadata": {
+			"saveOutput": true,
+			"synapse_widget": {
+				"version": "0.1"
+			},
+			"enableDebugMode": false,
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/5452efdb-4775-4568-857a-4f1d63d4d934/resourceGroups/AssistSearchGroup/providers/Microsoft.Synapse/workspaces/assistsearchworkspace/bigDataPools/AssistSpark",
+				"name": "AssistSpark",
+				"type": "Spark",
+				"endpoint": "https://assistsearchworkspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/AssistSpark",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.4",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Import required libraries\r\n",
+					"from pyspark.sql import SparkSession\r\n",
+					"\r\n",
+					"# Define file path\r\n",
+					"file_path = \"abfss://output@assistdatalakegen2.dfs.core.windows.net/part-00001-f75d6466-e738-41c6-931b-07e534bc4cc6-c000.json\"\r\n",
+					"\r\n",
+					"# Read JSON file into DataFrame\r\n",
+					"df = spark.read.json(file_path)\r\n",
+					"\r\n",
+					"# Show schema and first few records for verification\r\n",
+					"df.printSchema()\r\n",
+					"df.show(5)\r\n",
+					""
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Remove rows with null values in any of the columns\r\n",
+					"df_cleaned = df.dropna(subset=[\"Column3\", \"columns2\"])\r\n",
+					"\r\n",
+					"# Remove duplicate rows based on both columns\r\n",
+					"df_cleaned = df_cleaned.dropDuplicates([\"Column3\", \"columns2\"])\r\n",
+					"\r\n",
+					"# Show the cleaned data\r\n",
+					"df_cleaned.show(5)\r\n",
+					""
+				],
+				"execution_count": 57
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"from pyspark.sql.functions import when, col\r\n",
+					"\r\n",
+					"# Add a new 'category' column based on values in 'Column3'\r\n",
+					"df_transformed = df_cleaned.withColumn(\r\n",
+					"    \"category\",\r\n",
+					"    when(col(\"Column3\").contains(\"aeroplane\"), \"Aeroplane\")\r\n",
+					"    .when(col(\"Column3\").contains(\"island\"), \"Island\")\r\n",
+					"    .otherwise(\"Other\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Show the transformed data\r\n",
+					"df_transformed.show(5)\r\n",
+					""
+				],
+				"execution_count": 58
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_cleaned = df.dropna(subset=[\"Column3\", \"columns2\"])\r\n",
+					"df_cleaned = df_cleaned.dropDuplicates([\"Column3\", \"columns2\"])\r\n",
+					"\r\n",
+					"# Example transformation: Add a category based on 'Column3' values\r\n",
+					"from pyspark.sql.functions import when, col\r\n",
+					"df_transformed = df_cleaned.withColumn(\r\n",
+					"    \"category\",\r\n",
+					"    when(col(\"Column3\").contains(\"aeroplane\"), \"Aeroplane\")\r\n",
+					"    .when(col(\"Column3\").contains(\"island\"), \"Island\")\r\n",
+					"    .otherwise(\"Other\")\r\n",
+					")\r\n",
+					"\r\n",
+					"# Handle missing values\r\n",
+					"df_no_nulls = df_transformed.fillna({\"Column3\": \"Unknown\", \"columns2\": \"Unknown\"})\r\n",
+					""
+				],
+				"execution_count": 59
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"\r\n",
+					""
+				],
+				"execution_count": 60
+			}
+		]
+	}
+}

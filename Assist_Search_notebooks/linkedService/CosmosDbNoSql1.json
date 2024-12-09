@@ -1,0 +1,16 @@
+{
+	"name": "CosmosDbNoSql1",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "CosmosDb",
+		"typeProperties": {
+			"connectionString": "AccountEndpoint=https://assistcosmodb.documents.azure.com:443/;Database=AssistAIDB;",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIlNZTkFQU0VAQjY2MDUwOEQtRjM0MC00NTNELUIxMUUtNTQ5RDMzQjg0NERDX2U3MjAyZmIzLWQ3YjctNDhjYy04ZDkyLWFiYTAyNDM0YTk3NiINCn0="
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
